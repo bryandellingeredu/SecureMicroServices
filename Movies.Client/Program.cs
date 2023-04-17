@@ -1,7 +1,13 @@
+﻿
+using Microsoft.Extensions.DependencyInjection;
+using Movies.Client.ApiServices;
 var builder = WebApplication.CreateBuilder(args);
+
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddScoped<IMovieApiService, MovieApiService>();
 
 var app = builder.Build();
 
