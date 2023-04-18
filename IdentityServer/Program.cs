@@ -7,17 +7,27 @@ using IdentityServer;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddControllersWithViews();
+
 // Configure IdentityServer services
 builder.Services.AddIdentityServer()
     .AddInMemoryClients(Config.Clients)
     .AddInMemoryApiScopes(Config.ApiScopes)
+     .AddInMemoryIdentityResources(Config.IdentityResources)
+     .AddTestUsers((List<TestUser>)Config.TestUsers)
     .AddDeveloperSigningCredential();
 
 var app = builder.Build();
 
 // Add IdentityServer middleware
+app.UseStaticFiles();
+app.UseRouting();
 app.UseIdentityServer();
+app.UseAuthorization();
 
-app.MapGet("/", () => "Hello World!");
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapDefaultControllerRoute();
+});
 
 app.Run();
