@@ -44,10 +44,8 @@ namespace Movies.API.Controllers
             return movie;
         }
 
-        // PUT: api/Movies/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutMovie(int id, Movie movie)
+        public async Task<ActionResult<Movie>> PutMovie(int id, Movie movie)
         {
             if (id != movie.Id)
             {
@@ -72,7 +70,7 @@ namespace Movies.API.Controllers
                 }
             }
 
-            return NoContent();
+            return movie;
         }
 
         // POST: api/Movies

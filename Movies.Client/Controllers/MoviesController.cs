@@ -52,20 +52,12 @@ namespace Movies.Client.Controllers
         // GET: Movies/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            return View();
-       /*     if (id == null || _context.Movie == null)
+                if (id != null)
             {
-                return NotFound();
+                Movie movie = await _movieApiService.GetMovieById(id.Value.ToString());
+                return View(movie);
             }
-
-            var movie = await _context.Movie
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (movie == null)
-            {
-                return NotFound();
-            }
-
-            return View(movie);*/
+            return RedirectToAction("Index", "Home"); 
         }
 
         // GET: Movies/Create
@@ -81,35 +73,21 @@ namespace Movies.Client.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Title,Genre,Rating,ReleaseDate,ImageUrl,Owner")] Movie movie)
         {
-            return View();
-            /*
-            if (ModelState.IsValid)
-            {
-                _context.Add(movie);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(movie);
-            */
+            LogTokenAndClaims();
+            Movie createdMovie = await _movieApiService.CreateMovie(movie);
+            return RedirectToAction("Details", "Movies", new { id = createdMovie.Id });
+
         }
 
         // GET: Movies/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            return View();
-            /*
-            if (id == null || _context.Movie == null)
+            if (id != null)
             {
-                return NotFound();
+                Movie movie = await _movieApiService.GetMovieById(id.Value.ToString());
+                return View(movie);
             }
-
-            var movie = await _context.Movie.FindAsync(id);
-            if (movie == null)
-            {
-                return NotFound();
-            }
-            return View(movie);
-            */
+            return RedirectToAction("Index", "Home"); 
         }
 
         // POST: Movies/Edit/5
@@ -119,53 +97,19 @@ namespace Movies.Client.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Genre,Rating,ReleaseDate,ImageUrl,Owner")] Movie movie)
         {
-            return View();
-            /*
-            if (id != movie.Id)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(movie);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!MovieExists(movie.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            return View(movie);
+            LogTokenAndClaims();
+            await _movieApiService.UpdateMovie(movie);
+            return RedirectToAction("Index", "Movies");
         }
 
         // GET: Movies/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null || _context.Movie == null)
-            {
-                return NotFound();
-            }
 
-            var movie = await _context.Movie
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (movie == null)
-            {
-                return NotFound();
-            }
+            LogTokenAndClaims();
+            await _movieApiService.DeleteMovie(id.Value);
+            return RedirectToAction("Index", "Movies");
 
-            return View(movie);
-            */
         }
 
         // POST: Movies/Delete/5
@@ -174,20 +118,7 @@ namespace Movies.Client.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             return View();
-            /*
-            if (_context.Movie == null)
-            {
-                return Problem("Entity set 'MoviesClientContext.Movie'  is null.");
-            }
-            var movie = await _context.Movie.FindAsync(id);
-            if (movie != null)
-            {
-                _context.Movie.Remove(movie);
-            }
-            
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-            */
+ 
         }
 
         private bool MovieExists(int id)
