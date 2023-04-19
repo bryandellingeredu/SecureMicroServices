@@ -29,10 +29,11 @@ builder.Services.AddAuthentication(options =>
     options.Authority = "https://localhost:5005";
     options.ClientId = "movies_mvc_client";
     options.ClientSecret = "secret";
-    options.ResponseType = "code";
+    options.ResponseType = "code id_token";
 
     options.Scope.Add("openid");
     options.Scope.Add("profile");
+    options.Scope.Add("movieAPI");
 
     options.SaveTokens = true;
 
@@ -58,13 +59,15 @@ builder.Services.AddAuthentication(options =>
                 client.DefaultRequestHeaders.Add(HeaderNames.Accept, "application/json");
             });
 
-            builder.Services.AddSingleton(new ClientCredentialsTokenRequest
+        builder.Services.AddHttpContextAccessor();
+
+         /*   builder.Services.AddSingleton(new ClientCredentialsTokenRequest
             {                                                
                 Address = "https://localhost:5005/connect/token",
                 ClientId = "movieClient",
                 ClientSecret = "secret",
                 Scope = "movieAPI"
-            });
+            });*/
 
 var app = builder.Build();
 
