@@ -1,8 +1,7 @@
 ﻿using IdentityModel;
 using IdentityServer4;
 using IdentityServer4.Models;
-using IdentityServer4.Test;
-using System.Security.Claims;
+using System.Collections.Generic;
 
 namespace IdentityServer
 {
@@ -21,35 +20,35 @@ namespace IdentityServer
                         },
                         AllowedScopes = {"movieAPI"}
                     },
-                    new Client
-                    {
-                        ClientId = "movies_mvc_client",
-                        ClientName =  "Movies MVC Web App",
-                        AllowedGrantTypes= GrantTypes.Hybrid,
-                        RequirePkce = false,
-                        AllowRememberConsent=false,
-                        RedirectUris    = new List<string>()
-                        {
-                            "https://localhost:5002/signin-oidc"
-                        },
-                        PostLogoutRedirectUris= new List<string>()
-                        {
-                              "https://localhost:5002/signout-callback-oidc"
-                        },
-                        ClientSecrets =
-                        {
-                            new Secret("secret".Sha256())
-                        },
-                         AllowedScopes = new List<string>
-                         {
-                             IdentityServerConstants.StandardScopes.OpenId,
-                             IdentityServerConstants.StandardScopes.Profile,
-                             IdentityServerConstants.StandardScopes.Address,
-                             IdentityServerConstants.StandardScopes.Email,
-                             "movieAPI",
-                             "roles"
-                         }
-                    }
+                   new Client
+{
+    ClientId = "edf44846-5e26-409e-b4de-59676a88e0c3", // Use a custom ClientId instead of the one from Azure AD App
+    ClientName =  "Movies MVC Web App",
+    AllowedGrantTypes = GrantTypes.Implicit,
+        AllowAccessTokensViaBrowser = true,
+    RequirePkce = false,
+    AllowRememberConsent = false,
+    RedirectUris = new List<string>()
+    {
+        "https://localhost:5002/signin-oidc"
+    },
+    PostLogoutRedirectUris = new List<string>()
+    {
+        "https://localhost:5002/signout-callback-oidc"
+    },
+    ClientSecrets =
+    {
+        new Secret("FJd8Q~-wGZfozfIfPdb9z5W_i1fGy4xZLBNMXdjW".Sha256()) // Keep the same ClientSecret from Azure AD App
+    },
+    AllowedScopes = new List<string>
+    {
+        IdentityServerConstants.StandardScopes.OpenId,
+        IdentityServerConstants.StandardScopes.Profile,
+        IdentityServerConstants.StandardScopes.Email,
+        "movieAPI",
+    },
+    Enabled = true // Make sure the client is enabled
+}
             };
         public static IEnumerable<ApiScope> ApiScopes =>
            new ApiScope[]
@@ -66,27 +65,8 @@ namespace IdentityServer
        {
            new IdentityResources.OpenId(),
            new IdentityResources.Profile(),
-           new IdentityResources.Address(),
            new IdentityResources.Email(),
-           new IdentityResource(
-               "roles",
-               "Your role(s)",
-               new List<string>() { "role"})
        };
-        public static IEnumerable<TestUser> TestUsers =>
-             new List<TestUser>
-             {
-                 new TestUser
-                 {
-                     SubjectId  = "5BE86359-073C-AD2D-A3932222DABE",
-                     Username = "mehmet",
-                     Password  = "mehmet",
-                     Claims = new List<Claim>
-                     {
-                         new Claim(JwtClaimTypes.GivenName, "mehwet"),
-                         new Claim(JwtClaimTypes.FamilyName, "ozkaya")
-                     }
-                 }
-             };
+
     }
 }

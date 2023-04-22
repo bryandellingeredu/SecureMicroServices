@@ -1,5 +1,4 @@
-﻿
-using IdentityModel;
+﻿using IdentityModel;
 using IdentityModel.Client;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -11,13 +10,10 @@ using Movies.Client.HttpHandlers;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddScoped<IMovieApiService, MovieApiService>();
-
-
 
 builder.Services.AddAuthentication(options =>
 {
@@ -30,33 +26,28 @@ builder.Services.AddAuthentication(options =>
 })
 .AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme, options =>
 {
-    options.Authority = "https://localhost:5005";
-    options.ClientId = "movies_mvc_client";
-    options.ClientSecret = "secret";
-    options.ResponseType = "code id_token";
+    options.Authority = "https://localhost:5005"; // IdentityServer4 endpoint
+    options.ClientId = "edf44846-5e26-409e-b4de-59676a88e0c3"; // Client ID from IdentityServer4 configuration
+    options.ResponseType = "id_token token"; // Use "id_token token" for the implicit flow
 
-    //options.Scope.Add("openid");
-    //options.Scope.Add("profile");
-    options.Scope.Add("address");
+    options.Scope.Add("openid");
+    options.Scope.Add("profile");
     options.Scope.Add("email");
     options.Scope.Add("movieAPI");
-    options.Scope.Add("roles");
-
-    options.ClaimActions.MapUniqueJsonKey("role", "role");
 
     options.SaveTokens = true;
 
-    options.GetClaimsFromUserInfoEndpoint  = true;
+    options.GetClaimsFromUserInfoEndpoint = true;
 
     options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
     {
         NameClaimType = JwtClaimTypes.GivenName,
-        RoleClaimType = JwtClaimTypes.Role
     };
-}); 
+});
+
 
 // 1 create an HttpClient used for accessing the Movies.API
-   builder.Services.AddTransient<AuthenticationDelegatingHandler>();
+builder.Services.AddTransient<AuthenticationDelegatingHandler>();
            
             builder.Services.AddHttpClient("MovieAPIClient", client =>
             {
