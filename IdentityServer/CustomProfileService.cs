@@ -1,4 +1,5 @@
-﻿using IdentityServer4.Extensions;
+﻿using IdentityServer;
+using IdentityServer4.Extensions;
 using IdentityServer4.Models;
 using IdentityServer4.Services;
 using Microsoft.Extensions.Caching.Distributed;
@@ -8,28 +9,24 @@ using System.Threading.Tasks;
 
 public class CustomProfileService : IProfileService
 {
-    private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public CustomProfileService(IHttpContextAccessor httpContextAccessor)
+
+    public Task GetProfileDataAsync(ProfileDataRequestContext context)
     {
-        _httpContextAccessor = httpContextAccessor;
-    }
-
-    public async Task GetProfileDataAsync(ProfileDataRequestContext context)
-    {
-        var userId = context.Subject.GetSubjectId();
-        var email = _httpContextAccessor.HttpContext.Items["email"] as string;
-
-        if (!string.IsNullOrEmpty(email))
+        var nameClaim = context.Subject.Claims.FirstOrDefault(x => x.Type == "name");
+        var userId = nameClaim.Value;
+        if (EmailClaimStorage.EmailClaims.TryGetValue(userId, out string email))
         {
             context.IssuedClaims.Add(new Claim("email", email));
         }
 
-        var nameClaim = context.Subject.Claims.FirstOrDefault(x => x.Type == "name");
+
         if (nameClaim != null)
         {
             context.IssuedClaims.Add(new Claim("name", nameClaim.Value));
         }
+
+        return Task.CompletedTask;
     }
 
     public Task IsActiveAsync(IsActiveContext context)

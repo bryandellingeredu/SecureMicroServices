@@ -1,16 +1,7 @@
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
-using IdentityServer4.Models;
-using IdentityServer4.Test;
-using System.Collections.Generic;
 using IdentityServer;
-using IdentityServerHost.Quickstart.UI;
-using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using IdentityServer4;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using Microsoft.AspNetCore.Authentication;
 using IdentityServer4.Services;
-using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Caching.Distributed;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -59,27 +50,16 @@ builder.Services.AddAuthentication()
         options.TokenValidationParameters.NameClaimType = "name";
         options.Events.OnUserInformationReceived = async ctx =>
         {
-            Console.WriteLine();
-            Console.WriteLine("Claims from the ID token");
-            foreach (var claim in ctx.Principal.Claims)
-            {
-                Console.WriteLine($"{claim.Type} - {claim.Value}");
-            }
-            Console.WriteLine();
-            Console.WriteLine("Claims from the UserInfo endpoint");
-            foreach (var property in ctx.User.RootElement.EnumerateObject())
-            {
-                Console.WriteLine($"{property.Name} - {property.Value}");
-            }
+         
             var email = ctx.User.RootElement.GetString("email");
+            var name = ctx.User.RootElement.GetString("name");
             if (!string.IsNullOrEmpty(email))
             {
                 if (!string.IsNullOrEmpty(email))
                 {
-                    ctx.HttpContext.Items["email"] = email;
+                    EmailClaimStorage.EmailClaims.TryAdd(name, email);
                 }
             }
-            //return Task.CompletedTask;
         };
 
     });
