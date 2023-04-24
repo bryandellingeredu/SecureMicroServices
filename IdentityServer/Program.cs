@@ -9,6 +9,9 @@ using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using IdentityServer4;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authentication;
+using IdentityServer4.Services;
+using System.Security.Claims;
+using Microsoft.Extensions.Caching.Distributed;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,6 +31,9 @@ builder.Services.AddIdentityServer()
     .AddInMemoryApiScopes(Config.ApiScopes)
     .AddInMemoryIdentityResources(Config.IdentityResources)
     .AddDeveloperSigningCredential();
+
+builder.Services.AddTransient<IProfileService, CustomProfileService>();
+builder.Services.AddDistributedMemoryCache();
 
 // Add Azure AD authentication
 builder.Services.AddAuthentication()
@@ -51,7 +57,7 @@ builder.Services.AddAuthentication()
 
         options.SaveTokens = true;
         options.TokenValidationParameters.NameClaimType = "name";
-        options.Events.OnUserInformationReceived = ctx =>
+        options.Events.OnUserInformationReceived = async ctx =>
         {
             Console.WriteLine();
             Console.WriteLine("Claims from the ID token");
@@ -65,7 +71,15 @@ builder.Services.AddAuthentication()
             {
                 Console.WriteLine($"{property.Name} - {property.Value}");
             }
-            return Task.CompletedTask;
+            var email = ctx.User.RootElement.GetString("email");
+            if (!string.IsNullOrEmpty(email))
+            {
+                if (!string.IsNullOrEmpty(email))
+                {
+                    ctx.HttpContext.Items["email"] = email;
+                }
+            }
+            //return Task.CompletedTask;
         };
 
     });
