@@ -28,6 +28,7 @@ namespace Movies.Client.Controllers
         [Authorize]
         public async Task<IActionResult> OnlyAdmin()
         {
+            var token = await HttpContext.GetTokenAsync("access_token");
             var userInfo = await _movieApiService.GetUserInfo();
             return View(userInfo);
         }
